@@ -32,8 +32,8 @@ async def create_orderbook(token_pair: str):
         return {"message": "Orderbook created."}
     return {"message": "Orderbook already exists."}
 
-@app.post("/place-order")
-async def place_order(token_pair: str, order: Order):
+@app.post("/place-order", response_model=Message)
+async def place_order(token_pair: str, order: Order) -> Message:
     """
     Place an order for a given token pair.
 
@@ -48,8 +48,8 @@ async def place_order(token_pair: str, order: Order):
         order_book_map[token_pair].placeOrder(order)
         new_orders[token_pair].append(order)
         event_map[token_pair].set()
-        return {"message": "Order placed successfully!"}
-    return {"message": "Orderbook for this token pair does not exist."}
+        return Message(message="Order placed successfully!")
+    return Message(message="Orderbook for this token pair does not exist.")
 
 @app.websocket("/order-data/{token_pair}") 
 async def options_contract_websocket(websocket: WebSocket, token_pair: str): 
