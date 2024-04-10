@@ -16,8 +16,16 @@ new_orders: 'dict[str, List[Order]]' = defaultdict(list)
 class Message(BaseModel):
     message: str
 
-@app.post("/create-orderbook") 
-async def create_orderbook(token_pair: str):
+class Order(BaseModel):
+    orderId: int
+    datetime: float
+    side: str
+    price: float
+    volume: int
+    client: str
+
+@app.post("/create-orderbook", response_model=Message) 
+async def create_orderbook(token_pair: str) -> Message:
     """
     Create an orderbook for the given token pair.
 
@@ -29,8 +37,8 @@ async def create_orderbook(token_pair: str):
     """
     if token_pair not in order_book_map:
         order_book_map[token_pair] = OrderBook()
-        return {"message": "Orderbook created."}
-    return {"message": "Orderbook already exists."}
+        return Message(message="Orderbook created.")
+    return Message(message="Orderbook already exists.")
 
 @app.post("/place-order", response_model=Message)
 async def place_order(token_pair: str, order: Order) -> Message:
