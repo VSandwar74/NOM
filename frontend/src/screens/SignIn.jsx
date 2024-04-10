@@ -17,16 +17,20 @@ const SignIn = () => {
   
     return (
       <div className="flex flex-col items-center w-full h-screen bg-gradient-to-r from-violet-400 to-fuchsia-300 justify-center">
-        <div className='bg-white flex flex-col items-center p-24 md:px-80 md:py-32 rounded-3xl'>
-          <h1 className="text-6xl text-slate-800 font-bold mt-[20%]">
+        <div className='bg-white flex flex-col items-center py-24 md:py-32 w-[66%] h-[60%] rounded-3xl text-center'>
+          <h1 className="text-5xl text-slate-800 font-bold">
             <Typewriter
+              options={{
+                delay: 50,
+                deleteSpeed: 50,
+              }}
               onInit={(typewriter)=> {
     
               typewriter
               
               .typeString("Welcome to the Nibiru Options Marketplace!")
                 
-              .pauseFor(1000)
+              .pauseFor(1500)
               .deleteAll()
               .typeString("Sign in to get started.")
               .start();

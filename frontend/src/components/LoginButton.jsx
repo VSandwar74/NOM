@@ -1,7 +1,7 @@
 import {usePrivy} from '@privy-io/react-auth';
 import { FcGoogle } from 'react-icons/fc';
 
-export default function LoginButton() {
+const LoginButton = () => {
   const {ready, authenticated, login} = usePrivy();
   // Disable login when Privy is not ready or the user is already authenticated
   const disableLogin = !ready || (ready && authenticated);
@@ -21,3 +21,5 @@ export default function LoginButton() {
     </button>
   )
 }
+
+export default LoginButton;

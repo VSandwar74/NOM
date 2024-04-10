@@ -3,7 +3,7 @@ import * as firebase from '../services/firebase';
 import Typewriter from "typewriter-effect";
 import { useState } from 'react'
 import { collection, doc, query, addDoc, getDocs, setDoc, serverTimestamp, where, limit, orderBy, updateDoc, increment, deleteDoc } from "firebase/firestore";
-
+import { LogoutButton } from '../components';
     
 const Room = ( props ) => {
 
@@ -25,12 +25,12 @@ const Room = ( props ) => {
     }
 
     async function createRoom() {
-        const docRef = await addDoc(collection(db, "rooms"), {
-            name: roomName,
-            members: [],
-            owner: auth.currentUser.uid,
-            createdAt: serverTimestamp(),
-        });
+        // const docRef = await addDoc(collection(db, "rooms"), {
+        //     name: roomName,
+        //     members: [],
+        //     owner: auth.currentUser.uid,
+        //     createdAt: serverTimestamp(),
+        // });
         setRoomDoc({
             ref: docRef,
             name: roomName,
@@ -59,6 +59,7 @@ const Room = ( props ) => {
 
     return (
         <div className="flex flex-col items-center justify around w-full h-screen bg-gradient-to-r from-violet-400 to-fuchsia-300 justify-center">
+            {/* <LogoutButton className="fixed top-10 right-0 m-4"/> */}
             <div className='bg-white flex flex-col items-center justify-center p-12 md:px-60 md:py-20 rounded-3xl w-[60%]'>
                 {/* <p>{location.pathname}</p> */}
                 <h1 className="text-5xl text-slate-800">
