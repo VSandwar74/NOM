@@ -7,26 +7,54 @@ import * as firebase from '../services/firebase';
 const Form = (props) => {    
 
     const { auth, db } = firebase
-    const { bids, roomId } = props
+    const { bids, roomId, tokenPair } = props
 
     const [value, setValue] = useState(0)
     const [bidOrAsk, setBidOrAsk] = useState('bid')
 
     async function postTrade() {
-      await addDoc(collection(db, "rooms", roomId, "orders"), {
-        value: Number(value),
-        bidOrAsk,
-        uid: auth.currentUser.uid,
-        timestamp: serverTimestamp(),
-        name: auth.currentUser.displayName,
-      });
-    }
+      try {
+        const tokenPair = 'ETHBTC'; // Replace with your token pair
+        const orderData = {
+          orderId: 123,
+          datetime: 1649621934.123456,
+          side: 'buy',
+          price: Number(value),
+          volume: 1,
+          client: 'client123'
+        };
+  
+        const url = `http://localhost:8000/place-order?token_pair=${tokenPair}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(orderData)
+        });
+  
+        const data = await response.json();
+        console.log(data); // Handle response data
+      } catch (error) {
+        console.error('Error placing order:', error);
+      }
+    };
 
-    async function marketOrder(isBid) {
-      setValue((isBid) ? (1e10) : (0))
-      setBidOrAsk((isBid) ? ('bid') : ('ask'))
-      // sendTrade()
-    }
+    // async function postTrade() {
+    //   await addDoc(collection(db, "rooms", roomId, "orders"), {
+    //     value: Number(value),
+    //     bidOrAsk,
+    //     uid: auth.currentUser.uid,
+    //     timestamp: serverTimestamp(),
+    //     name: auth.currentUser.displayName,
+    //   });
+    // }
+
+    // async function marketOrder(isBid) {
+    //   setValue((isBid) ? (1e10) : (0))
+    //   setBidOrAsk((isBid) ? ('bid') : ('ask'))
+    //   // sendTrade()
+    // }
 
     // async function updateParties(counterParty, resting, isBid, ref, name) {
 
@@ -77,8 +105,8 @@ const Form = (props) => {
 
   return (
     <form 
-      // onSubmit
-     className="flex flex-row w-full justify-around p-10">
+      onSubmit={postTrade}
+      className="flex flex-row w-full justify-around p-10">
         <div>
           <select 
             className="text-center bg-white p-1 px-12 rounded-full"

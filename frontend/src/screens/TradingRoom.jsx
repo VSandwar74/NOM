@@ -70,12 +70,12 @@ const TradingRoom = ( props ) => {
       <div className='flex flex-col items-center w-full h-screen  bg-gradient-to-r from-violet-400 to-fuchsia-300'>
         <div className="flex flex-col items-center w-full">
           {/* <Header roomId={roomDoc.ref.id} roomName={roomDoc.name} /> */}
-          <Header roomId="111" roomName="NIBI/USD" />
+          <Header roomId="111" roomName={roomDoc.name} />
         </div>
         <div className='w-full flex flex-row px-12 justify-center items-center justify-self-center'>
           <div className="w-3/4 h-[512px] flex flex-col rounded-[20px] items-center bg-white/75 mt-10 px-10">
             <Title roomName={roomDoc.name}/>
-            <Form bids={bids} roomId="246ytjhh,vl9"/>
+            <Form bids={bids} roomId="246ytjhh,vl9" token_pair={roomDoc.name}/>
           <div className='flex flex-row w-full justify-center mt-1'>
             <Table bids={bids}/>
           </div>
