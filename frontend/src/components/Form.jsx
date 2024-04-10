@@ -39,26 +39,19 @@ const Form = (props) => {
   
         const data = await response.json();
         console.log(data); // Handle response data
+
+        setValue(0)
       } catch (error) {
         console.error('Error placing order:', error);
       }
     };
 
-    // async function postTrade() {
-    //   await addDoc(collection(db, "rooms", roomId, "orders"), {
-    //     value: Number(value),
-    //     bidOrAsk,
-    //     uid: auth.currentUser.uid,
-    //     timestamp: serverTimestamp(),
-    //     name: auth.currentUser.displayName,
-    //   });
-    // }
-
-    // async function marketOrder(isBid) {
-    //   setValue((isBid) ? (1e10) : (0))
-    //   setBidOrAsk((isBid) ? ('bid') : ('ask'))
-    //   // sendTrade()
-    // }
+    async function marketOrder(isBid) {
+      setValue((isBid) ? (1e10) : (0));
+      setBidOrAsk((isBid) ? ('bid') : ('ask'));
+      postTrade();
+      // sendTrade()
+    }
 
     // async function updateParties(counterParty, resting, isBid, ref, name) {
 
