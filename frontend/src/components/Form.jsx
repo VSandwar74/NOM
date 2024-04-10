@@ -12,9 +12,13 @@ const Form = (props) => {
     const [value, setValue] = useState(0)
     const [bidOrAsk, setBidOrAsk] = useState('bid')
 
-    async function postTrade() {
+    async function postTrade(e) {
       try {
-        const tokenPair = 'ETHBTC'; // Replace with your token pair
+        e.preventDefault();
+        console.log(tokenPair)
+
+        // const tokenPair = 'ETHBTC'; // Replace with your token pair
+
         const orderData = {
           orderId: 123,
           datetime: 1649621934.123456,
@@ -105,7 +109,7 @@ const Form = (props) => {
 
   return (
     <form 
-      onSubmit={postTrade}
+      onSubmit={(e) => postTrade(e)}
       className="flex flex-row w-full justify-around p-10">
         <div>
           <select 

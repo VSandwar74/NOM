@@ -67,7 +67,7 @@ async def place_order(token_pair: str, order: Order) -> Message:
         new_orders[token_pair].append(order)
         event_map[token_pair].set()
         return Message(message="Order placed successfully!")
-    return Message(message="Orderbook for this token pair does not exist.")
+    raise HTTPException(status_code=404, detail="Orderbook for this token pair does not exist.")
 
 @app.websocket("/order-data/{token_pair}") 
 async def options_contract_websocket(websocket: WebSocket, token_pair: str): 
