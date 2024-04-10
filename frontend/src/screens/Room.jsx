@@ -32,7 +32,7 @@ const Room = ( props ) => {
         //     createdAt: serverTimestamp(),
         // });
         setRoomDoc({
-            ref: docRef,
+            ref: "111",
             name: roomName,
         });
     }
@@ -60,7 +60,7 @@ const Room = ( props ) => {
     return (
         <div className="flex flex-col items-center justify around w-full h-screen bg-gradient-to-r from-violet-400 to-fuchsia-300 justify-center">
             {/* <LogoutButton className="fixed top-10 right-0 m-4"/> */}
-            <div className='bg-white flex flex-col items-center justify-center p-12 md:px-60 md:py-20 rounded-3xl w-[60%]'>
+            <div className='bg-white/75 flex flex-col items-center justify-center p-12 md:px-60 md:py-20 rounded-3xl w-[60%]'>
                 {/* <p>{location.pathname}</p> */}
                 <h1 className="text-5xl text-slate-800">
                     <Typewriter
