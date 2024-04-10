@@ -1,10 +1,12 @@
 import asyncio
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, HTTPException
 from typing import List, Any
 from utils.Orderbook import OrderBook, Order
 from collections import defaultdict
 from websocket_manager import WebsocketManager
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
@@ -23,6 +25,14 @@ class Order(BaseModel):
     price: float
     volume: int
     client: str
+
+# CORS (Cross-Origin Resource Sharing) middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from any origin
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Allow these HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 @app.post("/create-orderbook", response_model=Message) 
 async def create_orderbook(token_pair: str) -> Message:
