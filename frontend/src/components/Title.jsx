@@ -11,7 +11,7 @@ const Title = ( ) => {
 
             typewriter
             
-            .typeString("Welcome to the QFS Trading Floor!")
+            .typeString("Welcome to the NOM Trading Floor!")
               
             .pauseFor(1000)
             .deleteAll()

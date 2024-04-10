@@ -64,9 +64,13 @@ const Room = ( props ) => {
                 {/* <p>{location.pathname}</p> */}
                 <h1 className="text-5xl text-slate-800">
                     <Typewriter
+                        options={{
+                            delay: 50,
+                            deleteSpeed: 50,
+                        }}
                         onInit={(typewriter)=> {
                         typewriter
-                        
+
                         .typeString("Pick the swap pool!")
                         // .pauseFor(1000)
                         // .deleteAll()

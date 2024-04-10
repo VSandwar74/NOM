@@ -2,8 +2,9 @@ import React from 'react'
 
 import { useState, useEffect } from 'react'
 import * as firebase from '../services/firebase';
-
+import logo from '../assets/logo.png'
 import { doc, onSnapshot, setDoc, } from "firebase/firestore";
+import LogoutButton from './LogoutButton';
 
 const Header = (props) => {
   // const {auth, db} = firebase
@@ -35,15 +36,18 @@ const Header = (props) => {
   // }, []);  
 
   return (
-    <div className="flex flex-row justify-between w-full p-10">
+    <div className="flex flex-row justify-between w-full px-10 py-4">
         <div>
           <p className="text-white font-bold">
               {/* {name} */}
           </p>
           <p className="text-white">
-            Room Name: {roomName}   
+            Swap: {roomName}   
           </p>   
         </div>
+        <a className="w-[5%] flex flex-col items-center justify-center">
+          <img src={logo} className="w-full" alt='NOM logo'/>
+        </a>
         {/* <a href="http://quantfsnyu.com/" className="w-2/12 flex flex-col items-center justify-center">
           <img 
               className="w-full" 
@@ -52,6 +56,7 @@ const Header = (props) => {
               />
         </a> */}
         <h2 className="font-bold text-white">
+          <LogoutButton />
           {/* Cash: {cash}
           {"    "}
           Exposure: {exposure} */}

@@ -9,7 +9,7 @@ const LogoutButton = () => {
     <button 
         disabled={disableLogout}
         onClick={logout}
-        className="border-4 border-violet-900 flex flex-row items-center bg-white rounded-lg p-4 mt-20"
+        className="border-4 border-violet-900 flex flex-row items-center bg-white rounded-lg p-4"
         >
         <p className="text-violet-900"> 
             Log out
