@@ -16,39 +16,40 @@ const Room = ( props ) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        // console.log(JSON.stringify({ message: tokenPair }))
-        
-        try {
-            // Define the endpoint URL
-            const url = `http://localhost:8000/create-orderbook?token_pair=${tokenPair}`;
-
-            // Define the payload (token_pair)
-            // const payload = { message: 'ETHBTC' }; // Example token pair
-
-            // Send POST request using fetch
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                // body: JSON.stringify(payload)
-            });
-          
-          const data = await response.json();
-          setMessage(data.message);
-          console.log(data.message)
-
-          setRoomDoc({
-            ref: "111",
-            name: tokenPair,
-          });
-        } catch (error) {
-          console.error('Error creating orderbook:', error);
-          setMessage('An error occurred while creating the orderbook.');
-        }
-      };
+        if (tokenPair !== '') {
+            try {
+                // Define the endpoint URL
+                const url = `http://localhost:8000/create-orderbook?token_pair=${tokenPair}`;
     
+                // Define the payload (token_pair)
+                // const payload = { message: 'ETHBTC' }; // Example token pair
+    
+                // Send POST request using fetch
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    // body: JSON.stringify(payload)
+                });
+              
+              const data = await response.json();
+              setMessage(data.message);
+              console.log(data.message)
+    
+              setRoomDoc({
+                ref: "111",
+                name: tokenPair,
+              });
+            } catch (error) {
+              console.error('Error creating orderbook:', error);
+              setMessage('An error occurred while creating the orderbook.');
+            }
+        } else {
+            setError('Choose a token pair.');            
+            throw new Error('Choose a token pair.');
+        }
+    };
     // async function findRoom() {
     //     const q = query(collection(db, "rooms"), where("name", "==", roomName), limit(1));
     //     const querySnapshot = await getDocs(q);
@@ -126,6 +127,7 @@ const Room = ( props ) => {
                         placeholder="Room Name" 
                         onChange={(e) => setTokenPair(e.target.value)} 
                         >
+                            <option value="">Choose a token pair!</option>
                             <option value="NIBI/USDC">NIBI/USDC</option>
                             <option value="NIBI/ETH">NIBI/ETH</option>
                             <option value="NIBI/BTC">NIBI/BTC</option>
@@ -163,10 +165,10 @@ const Room = ( props ) => {
                         </p>    
                     </button>
                 </div> */}
-                <p className="text-white" >
-                    {error}
-                </p>
             </div>
+            <p className="absolute bottom-0 font-semibold text-red-500" >
+                {error}
+            </p>
         </div>
   )
 }
