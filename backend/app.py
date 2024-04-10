@@ -1,18 +1,22 @@
 import asyncio
 from fastapi import FastAPI, WebSocket
-from typing import List
+from typing import List, Any
 from utils.Orderbook import OrderBook, Order
 from collections import defaultdict
 from websocket_manager import WebsocketManager
+from pydantic import BaseModel
 
 app = FastAPI()
 
-order_book_map: dict[str, OrderBook] = {}
+order_book_map: 'dict[str, OrderBook]' = {}
 contract_websockets: dict[str, List[WebSocket]] = defaultdict(list)
-event_map: dict[str, asyncio.Event] = defaultdict(asyncio.Event)
-new_orders: dict[str, List[Order]] = defaultdict(list)
+event_map: 'dict[str, asyncio.Event]' = defaultdict(asyncio.Event)
+new_orders: 'dict[str, List[Order]]' = defaultdict(list)
 
-@app.post("/create-orderbook")
+class Message(BaseModel):
+    message: str
+
+@app.post("/create-orderbook") 
 async def create_orderbook(token_pair: str):
     """
     Create an orderbook for the given token pair.
@@ -47,8 +51,8 @@ async def place_order(token_pair: str, order: Order):
         return {"message": "Order placed successfully!"}
     return {"message": "Orderbook for this token pair does not exist."}
 
-@app.websocket("/order-data/{token_pair}")
-async def options_contract_websocket(websocket: WebSocket, token_pair: str):
+@app.websocket("/order-data/{token_pair}") 
+async def options_contract_websocket(websocket: WebSocket, token_pair: str): 
     """
     WebSocket endpoint for handling options contract data.
 

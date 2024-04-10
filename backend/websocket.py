@@ -8,5 +8,10 @@ class WebsocketManager:
 
 
     async def connect(self, group_id: str, websocket: WebSocket):
+        await websocket.accept()
+        if group_id in self.connections:
+            self.connections[group_id].append(websocket)
+        else:
+            self.connections[group_id] = [websocket]
         
 
