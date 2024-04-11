@@ -9,9 +9,9 @@ const LogoutButton = () => {
     <button 
         disabled={disableLogout}
         onClick={logout}
-        className="border-4 border-violet-900 flex flex-row items-center bg-white rounded-lg p-4"
+        className="border-4 border-fuchsia-300 flex flex-row items-center bg-white rounded-lg px-4 py-[6px] hover:bg-fuchsia-300 text-transparent hover:text-white transition-colors duration-300 ease-in-out"
         >
-        <p className="text-violet-900"> 
+        <p className="font-bold bg-gradient-to-r from-violet-400 to-fuchsia-300 bg-clip-text text-lg hover:text-white"> 
             Log out
         </p>    
     </button>

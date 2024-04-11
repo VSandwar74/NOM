@@ -11,11 +11,11 @@ function RoomNav() {
     return (
         <div className="App">
             {(roomDoc === '') ? 
-            <Room 
+            <TradingRoom 
                 roomDoc={roomDoc}
                 setRoomDoc={setRoomDoc}
             /> : 
-            <TradingRoom
+            <Room
                 roomDoc={roomDoc}
                 setRoomDoc={setRoomDoc}
             /> }
