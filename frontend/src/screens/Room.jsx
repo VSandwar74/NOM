@@ -12,6 +12,8 @@ const Room = ( props ) => {
     const { auth, db } = firebase;
     const [tokenPair, setTokenPair] = useState('')
     const [message, setMessage] = useState('')
+    const [tokenPair, setTokenPair] = useState('')
+    const [message, setMessage] = useState('')
 
     const [error, setError] = useState('')
 
@@ -177,16 +179,6 @@ const Room = ( props ) => {
             <p className="absolute bottom-0 font-semibold text-red-500" >
                 {error}
             </p>
-            <Modal
-                open={open}
-                onClose={() => setOpen(false)}
-                center
-                // closeIcon={closeIcon}
-                classNames="bg-purple-500"
-                >
-                <p>hlsafhka</p>
-                {/* <Form tokenPair={roomDoc.name}/> */}
-            </Modal>
         </div>
   )
 }
