@@ -9,52 +9,89 @@ const Room = ( props ) => {
 
     const { roomDoc, setRoomDoc } = props
     const { auth, db } = firebase;
-    const [roomName, setRoomName] = useState('')
+    const [tokenPair, setTokenPair] = useState('')
+    const [message, setMessage] = useState('')
 
     const [error, setError] = useState('')
-    
-    async function findRoom() {
-        const q = query(collection(db, "rooms"), where("name", "==", roomName), limit(1));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-            // console.log(querySnapshot.docs[0])
-            return querySnapshot.docs[0]
-        } else {
-            setError('Incorrect room key.')
-        }
-    }
 
-    async function createRoom() {
-        // const docRef = await addDoc(collection(db, "rooms"), {
-        //     name: roomName,
-        //     members: [],
-        //     owner: auth.currentUser.uid,
-        //     createdAt: serverTimestamp(),
-        // });
-        setRoomDoc({
-            ref: "111",
-            name: roomName,
-        });
-    }
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (tokenPair !== '') {
+            try {
+                // Define the endpoint URL
+                const url = `http://localhost:8000/create-orderbook?token_pair=${tokenPair}`;
     
-    async function joinRoom() {
-        try {
-            const docRef = await findRoom()
-            // console.log(docRef)
-            await setDoc(doc(db, 'rooms', docRef.id ,'users', auth.currentUser.uid), {
-                name: auth.currentUser.displayName,
-                cash: 0,
-                exposure: 0,
-                roomId: docRef.id,
-            });
-            setRoomDoc({
-                ref: docRef,
-                name: roomName,
-            });
-        } catch(error) {
-            console.log(error)
+                // Define the payload (token_pair)
+                // const payload = { message: 'ETHBTC' }; // Example token pair
+    
+                // Send POST request using fetch
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    // body: JSON.stringify(payload)
+                });
+              
+              const data = await response.json();
+              setMessage(data.message);
+              console.log(data.message)
+    
+              setRoomDoc({
+                ref: "111",
+                name: tokenPair,
+              });
+            } catch (error) {
+              console.error('Error creating orderbook:', error);
+              setMessage('An error occurred while creating the orderbook.');
+            }
+        } else {
+            setError('Choose a token pair.');            
+            throw new Error('Choose a token pair.');
         }
-    }
+    };
+    // async function findRoom() {
+    //     const q = query(collection(db, "rooms"), where("name", "==", roomName), limit(1));
+    //     const querySnapshot = await getDocs(q);
+    //     if (!querySnapshot.empty) {
+    //         // console.log(querySnapshot.docs[0])
+    //         return querySnapshot.docs[0]
+    //     } else {
+    //         setError('Incorrect room key.')
+    //     }
+    // }
+
+    // async function createRoom() {
+    //     // const docRef = await addDoc(collection(db, "rooms"), {
+    //     //     name: roomName,
+    //     //     members: [],
+    //     //     owner: auth.currentUser.uid,
+    //     //     createdAt: serverTimestamp(),
+    //     // });
+    //     setRoomDoc({
+    //         ref: "111",
+    //         name: roomName,
+    //     });
+    // }
+    
+    // async function joinRoom() {
+    //     try {
+    //         const docRef = await findRoom()
+    //         // console.log(docRef)
+    //         await setDoc(doc(db, 'rooms', docRef.id ,'users', auth.currentUser.uid), {
+    //             name: auth.currentUser.displayName,
+    //             cash: 0,
+    //             exposure: 0,
+    //             roomId: docRef.id,
+    //         });
+    //         setRoomDoc({
+    //             ref: docRef,
+    //             name: roomName,
+    //         });
+    //     } catch(error) {
+    //         console.log(error)
+    //     }
+    // }
 
 
     return (
@@ -80,15 +117,17 @@ const Room = ( props ) => {
                     />
                 </h1>
                 <form
-                    onSubmit={() => createRoom()}
+                    onSubmit={handleSubmit}
                     className='flex flex-row justify-between space-x-6 mt-10 font-semibold text-violet-900'
                 >
                     <select 
                         id="pair"
                         className="text-center bg-white py-0 px-4 border-4 border-violet-900  text-violet-900 rounded-lg w-[80%]"
-                        value={roomName}
+                        value={tokenPair}
                         placeholder="Room Name" 
-                        onChange={(e) => setRoomName(e.target.value)} >
+                        onChange={(e) => setTokenPair(e.target.value)} 
+                        >
+                            <option value="">Choose a token pair!</option>
                             <option value="NIBI/USDC">NIBI/USDC</option>
                             <option value="NIBI/ETH">NIBI/ETH</option>
                             <option value="NIBI/BTC">NIBI/BTC</option>
@@ -126,10 +165,10 @@ const Room = ( props ) => {
                         </p>    
                     </button>
                 </div> */}
-                <p className="text-white" >
-                    {error}
-                </p>
             </div>
+            <p className="absolute bottom-0 font-semibold text-red-500" >
+                {error}
+            </p>
         </div>
   )
 }

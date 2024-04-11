@@ -1,19 +1,41 @@
 import asyncio
-from fastapi import FastAPI, WebSocket
-from typing import List
+from fastapi import FastAPI, WebSocket, HTTPException
+from typing import List, Any
 from utils.Orderbook import OrderBook, Order
 from collections import defaultdict
 from websocket_manager import WebsocketManager
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
-order_book_map: dict[str, OrderBook] = {}
+order_book_map: 'dict[str, OrderBook]' = {}
 contract_websockets: dict[str, List[WebSocket]] = defaultdict(list)
-event_map: dict[str, asyncio.Event] = defaultdict(asyncio.Event)
-new_orders: dict[str, List[Order]] = defaultdict(list)
+event_map: 'dict[str, asyncio.Event]' = defaultdict(asyncio.Event)
+new_orders: 'dict[str, List[Order]]' = defaultdict(list)
 
-@app.post("/create-orderbook")
-async def create_orderbook(token_pair: str):
+class Message(BaseModel):
+    message: str
+
+class Order(BaseModel):
+    orderId: int
+    datetime: float
+    side: str
+    price: float
+    volume: int
+    client: str
+
+# CORS (Cross-Origin Resource Sharing) middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from any origin
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Allow these HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
+@app.post("/create-orderbook", response_model=Message) 
+async def create_orderbook(token_pair: str) -> Message:
     """
     Create an orderbook for the given token pair.
 
@@ -25,11 +47,11 @@ async def create_orderbook(token_pair: str):
     """
     if token_pair not in order_book_map:
         order_book_map[token_pair] = OrderBook()
-        return {"message": "Orderbook created."}
-    return {"message": "Orderbook already exists."}
+        return Message(message="Orderbook created.")
+    return Message(message="Orderbook already exists.")
 
-@app.post("/place-order")
-async def place_order(token_pair: str, order: Order):
+@app.post("/place-order", response_model=Message)
+async def place_order(token_pair: str, order: Order) -> Message:
     """
     Place an order for a given token pair.
 
@@ -44,11 +66,11 @@ async def place_order(token_pair: str, order: Order):
         order_book_map[token_pair].placeOrder(order)
         new_orders[token_pair].append(order)
         event_map[token_pair].set()
-        return {"message": "Order placed successfully!"}
-    return {"message": "Orderbook for this token pair does not exist."}
+        return Message(message="Order placed successfully!")
+    raise HTTPException(status_code=404, detail="Orderbook for this token pair does not exist.")
 
-@app.websocket("/order-data/{token_pair}")
-async def options_contract_websocket(websocket: WebSocket, token_pair: str):
+@app.websocket("/order-data/{token_pair}") 
+async def options_contract_websocket(websocket: WebSocket, token_pair: str): 
     """
     WebSocket endpoint for handling options contract data.
 

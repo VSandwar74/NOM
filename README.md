@@ -29,12 +29,16 @@ cargo build
 
 ### Backend
 
-The backend is built using Flask and utilizes Docker for containerization. To run the backend:
+The backend is built using Flask and "will utilizes Docker for containerization". To run the backend:
 
 ```bash
 cd backend
-docker build -t nom-backend .
-docker run -p 5000:5000 nom-backend
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app:app --reload
+# docker build -t nom-backend .
+# docker run -p 5000:5000 nom-backend
 ```
 
 Access the backend WebSocket server at `http://localhost:5000`.

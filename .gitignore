@@ -7,6 +7,8 @@ frontend/.pnp
 .pnp.js
 .yarn/install-state.gz
 
+frontend/dist
+
 # testing
 frontend/coverage
 
@@ -50,6 +52,7 @@ backend/old_Orderbook.py
 backend/orderbook.ipynb
 backend/orderbook_2.ipynb
 backend/orderbook_3.ipynb
+backend/venv
 
 ### Contract ###
 

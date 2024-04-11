@@ -15,8 +15,8 @@ const Ledger = (props) => {
             Ledger
         </h1>
         <div className='mt-24 h-[400px] overflow-y-auto scroll-auto'>
-            {ledger.map((trade) => (
-            <p>
+            {ledger.map((trade, i) => (
+            <p key={i}>
                 {trade.seller} sold to {trade.buyer} @ {trade.amount}
             </p>
             ))}
