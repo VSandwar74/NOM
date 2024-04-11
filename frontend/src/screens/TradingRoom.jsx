@@ -5,8 +5,8 @@ import React from 'react'
 // import Form from '../components/Form';
 // import Table from '../components/Table';
 
-import ledger from '../assets/ledger.json';
-import bids from '../assets/orders.json';
+import positions from '../assets/positions.json';
+import { Modal } from 'react-responsive-modal';
 
 // Header
 import logo from '../assets/logo.png'
@@ -27,10 +27,21 @@ import Ledger from '../components/Ledger';
 
 import options from '../assets/options.json';
 
+const closeIcon = (
+  <svg fill="currentColor" viewBox="0 0 20 20" width={28} height={28}>
+    <path
+      fillRule="evenodd"
+      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+      clipRule="evenodd"
+    ></path>
+  </svg>
+);
+
 const TradingRoom = ( props ) => {
 
     const { roomDoc } = props;
     const {db} = firebase
+    const [open, setOpen] = useState(false);
     // const [bids, setBids] = useState([])
     // const [ledger, setLedger] = useState([])
 
@@ -77,7 +88,7 @@ const TradingRoom = ( props ) => {
       <div className='flex flex-col items-center w-full bg-gradient-to-r from-violet-400 to-fuchsia-300'>
         <Header />
         <h1 className='font-bold text-2xl self-start ml-[5%] text-white mt-[8vh]'>
-          Options Chain
+          Options Chain ({roomDoc.name})
         </h1>
         <div className='w-[95%] h-full border-slate-400 border-0 bg-white/75 p-3 rounded-3xl mx-[2%] mb-[2%]'>
           <div className='w-full flex flex-row justify-between text-xl text-black font-bold border-b-[1px]'>
@@ -113,82 +124,85 @@ const TradingRoom = ( props ) => {
             </thead>
             <tbody className='' >
               {options.options && options.options.map((option, i) => {
-                const tableStyle = "text-slate-700 border-y-[0px] border-slate-400 text-center";
+                const tableStyle = "border-y-[0px] border-slate-400 text-center";
                 let color = i % 2 == 0 ? 'bg-purple-50' : 'bg-white';
                 let bidColor = 'text-green-500';
                 let askColor = 'text-red-500';
                 return (
                   <tr key={i} className={`${color} h-12`}>
-                    <td className={tableStyle}>{option.callopen}</td>
-                    <td className={tableStyle}>{option.calldelta}</td>
-                    <td className={tableStyle}>{option.callsize}</td>
-                    <td className={tableStyle}>{option.callivBid}</td>
-                    <td className={`${tableStyle} ${bidColor}`}>{option.callbid}</td>
-                    <td className={tableStyle}>{option.callmark}</td>
-                    <td className={`${tableStyle} ${askColor}`}>{option.callask}</td>
-                    <td className={tableStyle}>{option.callivAsk}</td>
-                    <td className={tableStyle}>{option.callsize}</td>
-                    <td className={`bg- font-bold text-slate-700 text-center`}>{option.strike}</td>
-                    <td className={tableStyle}>{option.putsize}</td>
-                    <td className={tableStyle}>{option.putivAsk}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callopen}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.calldelta}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callsize}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callivBid}</td>
+                    <td className={`${bidColor} ${tableStyle}`}>{option.callbid}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callmark}</td>
+                    <td className={`${askColor} ${tableStyle} `}>{option.callask}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callivAsk}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callsize}</td>
+                    <td className={`font-bold text-slate-700 text-center`}>{option.strike}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putsize}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putivAsk}</td>
                     <td className={`${tableStyle} ${askColor}`}>{option.putask}</td>
-                    <td className={tableStyle}>{option.putmark}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putmark}</td>
                     <td className={`${tableStyle} ${bidColor}`}>{option.putbid}</td>
-                    <td className={tableStyle}>{option.putivBid}</td>
-                    <td className={tableStyle}>{option.putsize}</td>
-                    <td className={tableStyle}>{option.putdelta}</td>
-                    <td className={tableStyle}>{option.putopen}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putivBid}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putsize}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putdelta}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putopen}</td>
                   </tr>
                 );
               })}
             </tbody>
-                {/* {bids && bids.map((order, i) => {
-                    // const myOrder = order.uid == auth.currentUser.uid
-                    const isBid = order.bidOrAsk == 'bid'
-                    if (isBid) {
-                    return (
-                        <tr key={i} className="">
-                            {/* {(myOrder) ? 
-                                (<td 
-                                    className="text-center cursor-pointer hover:text-red-500"
-                                    // onClick={() => (deleteDoc(order.ref))}
-                                    >
-                                    x
-                                </td>) : 
-                                (<td className="text-center"></td>)} 
-                            <td className="text-center"></td>
-                            <td className="text-center">{order.name}</td>
-                            <td className="text-center">{order.bidOrAsk}</td>
-                            <td className="text-center">{order.value}</td>
-                            <td className="text-center">{" "}</td>
-                            <td className="text-center">{" "}</td>
-                            <td className="text-center">{" "}</td>
-                        </tr>
-                    )
-                    } else {
-                    return (
-                        <tr key={i} className="">
-                            <td className="text-center"></td>
-                            <td className="text-center"></td>
-                            <td className="text-center"></td>
-                            <td className="text-center">{order.value}</td>
-                            <td className="text-center">{order.bidOrAsk}</td>
-                            <td className="text-center">{order.name}</td>
-                            <td className="text-center"></td>
-                            {{(myOrder) ? 
-                                (<td 
-                                    className="text-center cursor-pointer hover:text-red-500"
-                                    // onClick={() => (deleteDoc(order.ref))}
-                                    >
-                                    x
-                                </td>) : 
-                                (<td className="text-center"></td>)} 
-                        </tr>
-                    )
-                    }
-                })} */}
           </table>
         </div>
+        <h1 className='font-bold text-2xl self-start ml-[5%] text-white'>
+          Positions
+        </h1>
+        <div className='w-[95%] h-full border-slate-400 border-0 bg-white/75 p-3 rounded-3xl mx-[2%] mb-[2%]'>
+          <table className='table-auto w-[95%] justify-between mx-auto mt-2 rounded'>
+            <thead className='text-slate-950 font-semibold'>
+              <th className="underline">Instrument</th>
+              <th className="underline">Amount</th>
+              <th className="underline">Value</th>
+              <th className="underline">Avg Price</th>
+              <th className="underline">Mark Price</th>
+              <th className="underline">PnL</th>
+            </thead>
+            <tbody className='' >
+              {positions && positions.map((position, i) => {
+                let color = i % 2 == 0 ? 'bg-purple-50' : 'bg-white';
+                return (
+                  <tr key={i} className={`${color} h-12`}>
+                    <td className={`text-slate-700} text-center`}>{position.instrument}</td>
+                    <td className={`text-slate-700 text-center`}>{position.amount}</td>
+                    <td className={`text-slate-700 text-center`}>{position.value}</td>
+                    <td className={`text-slate-700 text-center`}>{position.avgprice}</td>
+                    <td className={`text-slate-700 text-center`}>{position.markprice}</td>
+                    <td className={`text-slate-700 text-center`}>{position.pnl}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <h1 className='font-bold text-2xl self-start ml-[5%] text-white'>
+          Open Orders
+        </h1>
+        <div className='w-[95%] h-full border-slate-400 border-0 bg-white/75 p-3 rounded-3xl mx-[2%] mb-[2%]'>
+          <button className="px-4 py-2 text-slate-400 bg-white rounded-full" onClick={() => setOpen(true)}>
+              Place Trade
+          </button>
+          
+        </div>
+        <Modal
+          open={open}
+          onClose={() => setOpen(false)}
+          center
+          // closeIcon={closeIcon}
+          classNames="bg-purple-500"
+        >
+          <Form tokenPair={roomDoc.name}/>
+        </Modal>
         {/* <div className="flex flex-col items-center w-full">
         </div>
         <div className='w-full flex flex-row px-12 justify-center items-center justify-self-center'>

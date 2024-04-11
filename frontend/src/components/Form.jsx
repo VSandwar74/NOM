@@ -7,7 +7,7 @@ import * as firebase from '../services/firebase';
 const Form = (props) => {    
 
     const { auth, db } = firebase
-    const { bids, roomId, tokenPair } = props
+    const { roomId, tokenPair } = props
 
     const [value, setValue] = useState(0)
     const [bidOrAsk, setBidOrAsk] = useState('bid')

@@ -1,0 +1,27 @@
+[
+      {
+        "instrument": "BTCDec12_K12c",
+        "amount": 100,
+        "value": 5000,
+        "avgprice": 50,
+        "markprice": 55,
+        "pnl": 250
+      },
+      {
+        "instrument": "BTCDec12_K13c",
+        "amount": 50,
+        "value": 7500,
+        "avgprice": 150,
+        "markprice": 160,
+        "pnl": 500
+      },
+      {
+        "instrument": "BTCDec12_K11c",
+        "amount": 200,
+        "value": 10000,
+        "avgprice": 50,
+        "markprice": 45,
+        "pnl": -1000
+      }
+]
+  

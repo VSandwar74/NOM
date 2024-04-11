@@ -4,7 +4,8 @@ import Typewriter from "typewriter-effect";
 import { useState } from 'react'
 import { collection, doc, query, addDoc, getDocs, setDoc, serverTimestamp, where, limit, orderBy, updateDoc, increment, deleteDoc } from "firebase/firestore";
 import { LogoutButton } from '../components';
-    
+import Modal from 'react-responsive-modal';    
+
 const Room = ( props ) => {
 
     const { roomDoc, setRoomDoc } = props
@@ -16,6 +17,13 @@ const Room = ( props ) => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        // temp
+          setRoomDoc({
+            ref: "111",
+            name: tokenPair,
+          });
+
         if (tokenPair !== '') {
             try {
                 // Define the endpoint URL
@@ -37,10 +45,10 @@ const Room = ( props ) => {
               setMessage(data.message);
               console.log(data.message)
     
-              setRoomDoc({
-                ref: "111",
-                name: tokenPair,
-              });
+            //   setRoomDoc({
+            //     ref: "111",
+            //     name: tokenPair,
+            //   });
             } catch (error) {
               console.error('Error creating orderbook:', error);
               setMessage('An error occurred while creating the orderbook.');
@@ -169,6 +177,16 @@ const Room = ( props ) => {
             <p className="absolute bottom-0 font-semibold text-red-500" >
                 {error}
             </p>
+            <Modal
+                open={open}
+                onClose={() => setOpen(false)}
+                center
+                // closeIcon={closeIcon}
+                classNames="bg-purple-500"
+                >
+                <p>hlsafhka</p>
+                {/* <Form tokenPair={roomDoc.name}/> */}
+            </Modal>
         </div>
   )
 }
