@@ -12,8 +12,6 @@ const Room = ( props ) => {
     const { auth, db } = firebase;
     const [tokenPair, setTokenPair] = useState('')
     const [message, setMessage] = useState('')
-    const [tokenPair, setTokenPair] = useState('')
-    const [message, setMessage] = useState('')
 
     const [error, setError] = useState('')
 
