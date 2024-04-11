@@ -88,3 +88,9 @@ contract/lcov.info
 
 .DS_Store
 contract/artifacts/*.json
+
+#environment variables file
+backend/.env
+
+#env folders
+env/

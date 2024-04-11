@@ -79,3 +79,24 @@ async def options_contract_websocket(websocket: WebSocket, token_pair: str):
         # Make sure to clean up on disconnect
         if websocket in contract_websockets[token_pair]:
             contract_websockets[token_pair].remove(websocket)
+
+
+
+#mongoDB setup:
+from pymongo import MongoClient 
+import os
+from dotenv import dotenv_values
+
+config = dotenv_values(".env")
+
+@app.on_event("startup")
+def connection_to_db():
+    #connection string
+    app.mongodb_client = MongoClient(config['ATLAS_URI'])
+    app.database = app.mongodb_client[config['DB_NAME']]
+
+@app.on_event("shutdown")
+def disconnect_from_db():
+    app.mongodb_client.close()
+
+
