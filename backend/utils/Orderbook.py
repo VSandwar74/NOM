@@ -308,6 +308,10 @@ class OrderBook:
         self.volumeMap: dict = defaultdict(dict) # price // side // vol
         self.queueMap: dict = defaultdict(dict) # price // side // queue #DONT UNDERSTAND
         self.txct: int = 0
+        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': []}
+
+    def _resetOrders(self) -> None:
+        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': []}
 
     
     def _crossedTrade(self, book, order) -> bool:
@@ -320,8 +324,8 @@ class OrderBook:
                     return True
         return False
 
-
     def placeOrder(self, order: Order) -> None:
+        self._resetOrders()
         oppBook = self.bestAsk if order.side == 'BID' else self.bestBid
         sameBook = self.bestBid if order.side == 'BID' else self.bestAsk
 
@@ -339,12 +343,16 @@ class OrderBook:
             matchedOrder.volume -= txVolume
             order.volume -= txVolume
 
-            self.volumeMap[txPrice][matchedOrder.side] -= txVolume
+            self.orders['matched'].append(matchedOrder.orderId)
 
             if matchedOrder.volume == 0: 
                 self.cancelOrder(matchedOrder.orderId)
 #                 oppBook.popOrder()
 #                 del self.orderMap[matchedOrder.orderId]
+            else:
+                self.orders['volumeChanged'].append({'orderId': matchedOrder.orderId, 'dVolume': -txVolume})
+            
+            self.volumeMap[txPrice][matchedOrder.side] -= txVolume
 
         if order.volume > 0:
             self._placeResting(order, sameBook)
@@ -380,6 +388,7 @@ class OrderBook:
                 del self.queueMap[order.price][order.side]
             self.volumeMap[order.price][order.side] -= order.volume
             del self.orderMap[orderId]
+            self.orders['canceled'].append(orderId)
     
     def executeOrder(self, orderId) -> None:
         '''
@@ -392,6 +401,7 @@ class OrderBook:
             order = self.orderMap[orderId].item
             order.volume -= volume
             self.volumeMap[order.price][order.side] -= order.volume
+            self.orders['volumeChanged'].append({'orderId': orderId, 'dVolume': -volume})
 
     def getVolumeAtPrice(self, price, side):
         return self.volumeMap[price][side]
