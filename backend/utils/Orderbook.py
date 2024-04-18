@@ -8,6 +8,7 @@ To-Do:
 - hash map to dll and order node secured
 - reinstall cancellations and removals
 - del hash map values when node is del to prevent memory leaks
+- implement snapshot and restore
 
 '''
 

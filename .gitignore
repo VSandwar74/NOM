@@ -91,6 +91,7 @@ contract/artifacts/*.json
 
 #environment variables file
 backend/.env
+.env
 
 #env folders
 env/
