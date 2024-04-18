@@ -308,10 +308,10 @@ class OrderBook:
         self.volumeMap: dict = defaultdict(dict) # price // side // vol
         self.queueMap: dict = defaultdict(dict) # price // side // queue #DONT UNDERSTAND
         self.txct: int = 0
-        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': []}
+        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': [], 'isResting': False}
 
     def _resetOrders(self) -> None:
-        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': []}
+        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': [], 'isResting': False}
 
     
     def _crossedTrade(self, book, order) -> bool:
@@ -356,10 +356,14 @@ class OrderBook:
 
         if order.volume > 0:
             self._placeResting(order, sameBook)
+
+        return self.orders
     
     def _placeResting(self, order, book) -> None: # Figure out the deal with queue map and heap
         
         self.orderMap[order.orderId] = Node(order)
+
+        self.orders['isResting'] = True
 
         if order.price not in self.queueMap or order.side not in self.queueMap[order.price]:
             self.queueMap[order.price][order.side] = DoublyLinkedList(self.orderMap[order.orderId]) # [order] # DoublyLinkedList(order)
