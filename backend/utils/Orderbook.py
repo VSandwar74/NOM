@@ -8,6 +8,7 @@ To-Do:
 - hash map to dll and order node secured
 - reinstall cancellations and removals
 - del hash map values when node is del to prevent memory leaks
+- implement snapshot and restore
 
 '''
 
@@ -318,6 +319,10 @@ class OrderBook:
         self.volumeMap: dict = defaultdict(dict) # price // side // vol
         self.queueMap: dict = defaultdict(dict) # price // side // queue #DONT UNDERSTAND
         self.txct: int = 0
+        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': [], 'isResting': False}
+
+    def _resetOrders(self) -> None:
+        self.orders = {'canceled': [], 'matched': [], 'volumeChanged': [], 'isResting': False}
 
     
     def _crossedTrade(self, book, order) -> bool:
@@ -331,8 +336,8 @@ class OrderBook:
         return False
 
 
-
     def placeOrder(self, order: Order) -> Message:
+        self._resetOrders()
         oppBook = self.bestAsk if order.side == 'BID' else self.bestBid
         sameBook = self.bestBid if order.side == 'BID' else self.bestAsk
 
@@ -352,20 +357,27 @@ class OrderBook:
             matchedOrder.volume -= txVolume
             order.volume -= txVolume
 
-            self.volumeMap[txPrice][matchedOrder.side] -= txVolume
+            self.orders['matched'].append(matchedOrder.orderId)
 
             if matchedOrder.volume == 0: 
                 self.cancelOrder(matchedOrder.orderId)
+#                 oppBook.popOrder()
+#                 del self.orderMap[matchedOrder.orderId]
+            else:
+                self.orders['volumeChanged'].append({'orderId': matchedOrder.orderId, 'dVolume': -txVolume})
+            
+            self.volumeMap[txPrice][matchedOrder.side] -= txVolume
 
         if order.volume > 0:
             self._placeResting(order, sameBook)
-        
-        return message
 
+        return self.orders
     
     def _placeResting(self, order, book) -> None: # Figure out the deal with queue map and heap
         
         self.orderMap[order.orderId] = Node(order)
+
+        self.orders['isResting'] = True
 
         if order.price not in self.queueMap or order.side not in self.queueMap[order.price]:
             self.queueMap[order.price][order.side] = DoublyLinkedList(self.orderMap[order.orderId]) # [order] # DoublyLinkedList(order)
@@ -394,6 +406,7 @@ class OrderBook:
                 del self.queueMap[order.price][order.side]
             self.volumeMap[order.price][order.side] -= order.volume
             del self.orderMap[orderId]
+            self.orders['canceled'].append(orderId)
     
     def executeOrder(self, orderId) -> None:
         '''
@@ -406,6 +419,7 @@ class OrderBook:
             order = self.orderMap[orderId].item
             order.volume -= volume
             self.volumeMap[order.price][order.side] -= order.volume
+            self.orders['volumeChanged'].append({'orderId': orderId, 'dVolume': -volume})
 
     def getVolumeAtPrice(self, price, side):
         return self.volumeMap[price][side]
