@@ -26,6 +26,16 @@ class Client:
         return self.cash + self.currPrice * self.exposure
 '''
 
+class Message:
+    def __init__(self, orderId, matchId, time, resting, price, volume, txct) -> None:
+        self.orderId: int = orderId
+        self.matchId: int = matchId
+        self.datetime: float = time
+        self.resting: bool = resting
+        self.price: float = price
+        self.volume: int = volume
+        self.txct: int = txct
+
 class Order:
     def __init__(self, orderId, time, bidOrAsk, price, volume, client) -> None:
         self.orderId: int = orderId
@@ -321,20 +331,23 @@ class OrderBook:
         return False
 
 
-    def placeOrder(self, order: Order) -> None:
+
+    def placeOrder(self, order: Order) -> Message:
         oppBook = self.bestAsk if order.side == 'BID' else self.bestBid
         sameBook = self.bestBid if order.side == 'BID' else self.bestAsk
 
-#         self.orderMap[order.orderId] = Node(order)
-# 
+        message = Message(order.orderId, None, order.datetime, True, order.price, order.volume, self.txct)
+        self.orderMap[order.orderId] = order
+
         while order.volume > 0 and self._crossedTrade(oppBook, order):
-#             print(oppBook.printHeap())
             
             matchedOrder = oppBook.getMin()
+            message.matchId = matchedOrder.orderId
+            message.resting = False
 
             self.txct += 1
 
-            txPrice, txVolume = matchedOrder.price, min(order.volume, matchedOrder.volume) # add client side interaction here
+            txPrice, txVolume = matchedOrder.price, min(order.volume, matchedOrder.volume) 
             
             matchedOrder.volume -= txVolume
             order.volume -= txVolume
@@ -343,11 +356,12 @@ class OrderBook:
 
             if matchedOrder.volume == 0: 
                 self.cancelOrder(matchedOrder.orderId)
-#                 oppBook.popOrder()
-#                 del self.orderMap[matchedOrder.orderId]
 
         if order.volume > 0:
             self._placeResting(order, sameBook)
+        
+        return message
+
     
     def _placeResting(self, order, book) -> None: # Figure out the deal with queue map and heap
         
