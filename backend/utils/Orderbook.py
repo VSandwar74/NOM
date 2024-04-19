@@ -336,7 +336,7 @@ class OrderBook:
         return False
 
 
-    def placeOrder(self, order: Order) -> Message:
+    def placeOrder(self, order: Order):
         self._resetOrders()
         oppBook = self.bestAsk if order.side == 'BID' else self.bestBid
         sameBook = self.bestBid if order.side == 'BID' else self.bestAsk
