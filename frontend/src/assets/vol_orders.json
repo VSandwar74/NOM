@@ -1,0 +1,32 @@
+[
+    {
+        "price": 223.81,
+        "bidOrAsk": "BID",
+        "volume": 100
+    },
+    {
+        "price": 223.84,
+        "bidOrAsk": "BID",
+        "volume": 764
+    },
+    {
+        "price": 223.86,
+        "bidOrAsk": "ASK",
+        "volume": 221
+    },
+    {
+        "price": 223.95,
+        "bidOrAsk": "ASK",
+        "volume": 158
+    },
+    {
+        "price": 223.99,
+        "bidOrAsk": "ASK",
+        "volume": 300
+    },
+    {
+        "price": 224.0,
+        "bidOrAsk": "ASK",
+        "volume": 50
+    }
+]
