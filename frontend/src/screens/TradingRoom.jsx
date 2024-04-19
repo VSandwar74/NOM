@@ -44,7 +44,28 @@ const TradingRoom = ( props ) => {
     const [open, setOpen] = useState(false);
     // const [bids, setBids] = useState([])
     // const [ledger, setLedger] = useState([])
-
+    useEffect(() => {
+      const tokenPair = roomDoc.name; // Specify the token pair you want to connect to
+      const ws = new WebSocket(`ws://127.0.0.1:8000/order-data/${tokenPair}`);
+  
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+      };
+  
+      ws.onmessage = (event) => {
+        console.log('Message received from server:', event.data);
+        // Handle the received message from the server
+      };
+  
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
+        // Handle WebSocket disconnection
+      };
+  
+      return () => {
+        ws.close();
+      };
+    }, []);
     // useEffect(() => {
     //   const orderQuery = query(collection(db, "rooms", roomDoc.ref.id ,"orders"), where('bidOrAsk', 'in', ['bid', 'ask']), orderBy('value', 'asc'), orderBy('timestamp', 'asc'));
     //   const unsubscribe = onSnapshot(orderQuery, (querySnapshot) => {
