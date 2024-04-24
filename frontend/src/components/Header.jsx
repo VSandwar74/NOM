@@ -3,65 +3,22 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import * as firebase from '../services/firebase';
 import logo from '../assets/logo.png'
-import { doc, onSnapshot, setDoc, } from "firebase/firestore";
 import LogoutButton from './LogoutButton';
+import { doc, onSnapshot, setDoc, } from "firebase/firestore";
 
 const Header = (props) => {
-  // const {auth, db} = firebase
   const { roomId, roomName } = props;
 
-  // const name = auth.currentUser.displayName;
-  // const [cash, setCash] = useState(0)
-  // const [exposure, setExposure] = useState(0)
-
-  // useEffect(() => {
-  //   console.log(roomId)
-  //   async function createUser() {
-  //     await setDoc(doc(db, "rooms", roomId, "users", auth.currentUser.uid), {
-  //       name: auth.currentUser.displayName,
-  //       cash: 0,
-  //       exposure: 0,
-  //     })
-  //   }
-  //   createUser()
-  // }, [])
-
-  // useEffect(() => {
-  //   const unsubscribe = onSnapshot(doc(db, "rooms", roomId, "users", auth.currentUser.uid), { includeMetadataChanges: true }, (doc) => {
-  //     setCash(doc.data().cash);
-  //     setExposure(doc.data().exposure);
-  //   });
-    
-  //   return () => unsubscribe();
-  // }, []);  
-
   return (
-    <div className="flex flex-row justify-between w-full px-10 py-4">
-        <div>
-          <p className="text-white font-bold">
-              {/* {name} */}
+      <header className='fixed top-0 w-full border-b-slate-400 flex flex-row justify-between bg-white/75 p-2 px-4 items-center h-[8%] border-[2px]'>
+        <div className='flex flex-row items-end h-full'>
+          <p className='font-bold text-transparent bg-violet-400 bg-gradient-tor from-violet-400 to-fuchsia-300 bg-clip-text text-3xl'>
+            NOM
           </p>
-          <p className="text-white">
-            Swap: {roomName}   
-          </p>   
         </div>
-        <a className="w-[5%] flex flex-col items-center justify-center">
-          <img src={logo} className="w-full" alt='NOM logo'/>
-        </a>
-        {/* <a href="http://quantfsnyu.com/" className="w-2/12 flex flex-col items-center justify-center">
-          <img 
-              className="w-full" 
-              src="//images.squarespace-cdn.com/content/v1/54455593e4b026d1c3c6f497/1440969142293-6K3214PMOD4KKR42OWPQ/QFS+Original2.png?format=1500w" 
-              alt="NYU Quantitative Finance Society"
-              />
-        </a> */}
-        <h2 className="font-bold text-white">
-          <LogoutButton />
-          {/* Cash: {cash}
-          {"    "}
-          Exposure: {exposure} */}
-        </h2>
-    </div>
+        <img src={logo} className="h-10 absolute top-2 left-[49%]" alt='NOM logo'/>
+        <LogoutButton />
+      </header>
   )
 }
 

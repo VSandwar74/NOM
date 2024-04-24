@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from db import add_to_db, remove_from_db, change_order_volume, add_ledger_entry
 
+
 app = FastAPI()
 
 
