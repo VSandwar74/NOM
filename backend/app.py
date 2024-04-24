@@ -6,7 +6,7 @@ from collections import defaultdict
 from websocket_manager import WebsocketManager
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from db import add_to_db, remove_from_db, change_order_volume
+from db import add_to_db, remove_from_db, change_order_volume, add_ledger_entry
 
 app = FastAPI()
 
@@ -88,14 +88,11 @@ async def place_order(token_pair: str, expiry: str,strike: float, order: OrderMo
         if token_pair not in order_book_map or expiry not in order_book_map[token_pair] or strike not in order_book_map[token_pair][expiry]:
             order_book_map[token_pair][expiry][strike] = OrderBook()
         # Place the order
-        order = Order(orderId=order.orderId, datetime=order.datetime, side=order.side, price=order.price, volume=order.volume, client=order.client)
+        order = Order(orderId=order.orderId, time=order.datetime, bidOrAsk=order.side, price=order.price, volume=order.volume, client=order.client)
         msg = order_book_map[token_pair][expiry][strike].placeOrder(order)
-
         # if order is resting and was not matched with any other order, add it to the database
         if msg.resting and msg.matched == []:
             add_to_db(order, strike, expiry, token_pair)
-            return Message(message="Order placed successfully!", 
-                           resting=msg.resting)
         # otherwise, update the database with the changes in the orderbook
         else:
             for cancelled_order in msg.canceled:
@@ -104,10 +101,12 @@ async def place_order(token_pair: str, expiry: str,strike: float, order: OrderMo
                 change_order_volume(vol_change.dVolume, vol_change.orderId, strike, expiry, token_pair)
             if msg.resting:
                 add_to_db(order, strike, expiry, token_pair)
-            return Message(message="Order placed successfully!",
+        add_ledger_entry(order, token_pair, expiry, strike, msg.matched)
+        return Message(message="Order placed successfully!",
                            resting=msg.resting)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error placing order: {e}")
+
 
         
 @app.get('/snapshot', response_model=Snapshot)
