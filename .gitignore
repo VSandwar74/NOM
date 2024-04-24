@@ -90,7 +90,7 @@ contract/lcov.info
 contract/artifacts/*.json
 
 #environment variables file
-backend/.env
+backend/venv
 .env
 
 #env folders
