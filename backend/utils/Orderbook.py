@@ -410,3 +410,9 @@ class OrderBook:
 
     def getVolumeAtPrice(self, price, side):
         return self.volumeMap[price][side]
+
+    def snapshot(self):
+        '''
+        To do: implement snapshot
+        '''
+        pass

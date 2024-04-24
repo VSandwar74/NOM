@@ -6,7 +6,7 @@ from collections import defaultdict
 from websocket_manager import WebsocketManager
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from db import add_to_db, remove_from_db
+from db import add_to_db, remove_from_db, change_order_volume
 
 app = FastAPI()
 
@@ -68,58 +68,68 @@ async def place_order(token_pair: str, expiry: str,strike: float, order: Order) 
 
     Args:
         token_pair (str): The token pair for which the order is being placed.
+        expiry (str): The expiry date of the order.
+        strike (float): The strike price of the order.
         order (Order): The order to be placed.
+
 
     Returns:
         dict: A dictionary containing a message indicating the success or failure of the order placement.
     """
-    if token_pair not in order_book_map:
-        order_book_map[token_pair][expiry][strike] = OrderBook()
-    msg = order_book_map[token_pair][expiry][strike].placeOrder(order)
-    if msg.resting:
-        add_to_db(order, strike, expiry, token_pair)
-        return Message(message="Order placed successfully!", resting=True)
-    else:
-        matched_orders = msg.matched
-        for matched_order in matched_orders:
-            remove_from_db(matched_order.orderId, strike, expiry, token_pair)
-            
-    # if token_pair in order_book_map:
-    #     order_book_map[token_pair].placeOrder(order)
-    #     new_orders[token_pair].append(order)
-    #     event_map[token_pair].set()
-    #     return Message(message="Order placed successfully!")
-    # raise HTTPException(status_code=404, detail="Orderbook for this token pair does not exist.")
-
-@app.websocket("/order-data/{token_pair}") 
-async def options_contract_websocket(websocket: WebSocket, token_pair: str): 
-    """
-    WebSocket endpoint for handling options contract data.
-
-    Args:
-        websocket (WebSocket): The WebSocket connection.
-        token_pair (str): The token pair for which the data is requested.
-
-    Returns:
-        None
-
-    Raises:
-        Exception: If there is a disconnection or error.
-
-    """
-    await websocket.accept()
-    contract_websockets[token_pair].append(websocket)
     try:
-        while True:
-            await event_map[token_pair].wait()
-            for order in new_orders[token_pair]:
-                await websocket.send_json(order)
-            event_map[token_pair].clear()
+        # Check if the order book exists, if not create it
+        if token_pair not in order_book_map or expiry not in order_book_map[token_pair] or strike not in order_book_map[token_pair][expiry]:
+            order_book_map[token_pair][expiry][strike] = OrderBook()
+        # Place the order
+        msg = order_book_map[token_pair][expiry][strike].placeOrder(order)
+
+        # if order is resting and was not matched with any other order, add it to the database
+        if msg.resting and msg.matched == []:
+            add_to_db(order, strike, expiry, token_pair)
+            return Message(message="Order placed successfully!", resting=True)
+        # otherwise, update the database with the changes in the orderbook
+        else:
+            for cancelled_order in msg.canceled:
+                remove_from_db(cancelled_order.orderId, strike, expiry, token_pair)
+            for vol_change in msg.volumeChanged:
+                change_order_volume(vol_change.dVolume, vol_change.orderId, strike, expiry, token_pair)
+            if msg.resting:
+                add_to_db(order, strike, expiry, token_pair)
+            return Message(message="Order placed successfully!", resting=msg.resting)
     except Exception as e:
-        # Handle disconnection or error
-        contract_websockets[token_pair].remove(websocket)
-        print(f"Websocket disconnected: {e}")
-    finally:
-        # Make sure to clean up on disconnect
-        if websocket in contract_websockets[token_pair]:
-            contract_websockets[token_pair].remove(websocket)
+        raise HTTPException(status_code=400, detail=f"Error placing order: {e}")
+
+        
+
+# @app.websocket("/order-data/{token_pair}") 
+# async def options_contract_websocket(websocket: WebSocket, token_pair: str): 
+#     """
+#     WebSocket endpoint for handling options contract data.
+
+#     Args:
+#         websocket (WebSocket): The WebSocket connection.
+#         token_pair (str): The token pair for which the data is requested.
+
+#     Returns:
+#         None
+
+#     Raises:
+#         Exception: If there is a disconnection or error.
+
+#     """
+#     await websocket.accept()
+#     contract_websockets[token_pair].append(websocket)
+#     try:
+#         while True:
+#             await event_map[token_pair].wait()
+#             for order in new_orders[token_pair]:
+#                 await websocket.send_json(order)
+#             event_map[token_pair].clear()
+#     except Exception as e:
+#         # Handle disconnection or error
+#         contract_websockets[token_pair].remove(websocket)
+#         print(f"Websocket disconnected: {e}")
+#     finally:
+#         # Make sure to clean up on disconnect
+#         if websocket in contract_websockets[token_pair]:
+#             contract_websockets[token_pair].remove(websocket)
