@@ -1,21 +1,12 @@
 from mongoengine import Document, StringField, IntField, FloatField, connect, EmbeddedDocument, ListField, EmbeddedDocumentField
 from dotenv import dotenv_values
-from pydantic import BaseModel
-
+from utils.Orderbook import Order
 # DB Setup, can be moved to other file
 config = dotenv_values(".env")
 URI = config['ATLAS_URI']
 DB_NAME = config['DB_NAME']
 DSN = URI + DB_NAME
 connect(host=DSN)
-
-class Order(BaseModel):
-    orderId: int
-    datetime: float
-    side: str
-    price: float
-    volume: int
-    client: str
 
 class OrderDoc(EmbeddedDocument):
     orderId = StringField(required=True)
@@ -156,3 +147,28 @@ def change_order_volume(dVolume, orderId, strike, expiry, token_pair):
 
     # Save the document
     token_pair_doc.save()
+
+def add_ledger_entry(order: Order, strike: float, expiry: str, token_pair: str, matchedIds: list):
+    # convert from pydantic model to mongoengine model
+    order = LedgerEntryDoc(
+        orderId=order.orderId,
+        datetime=order.datetime,
+        side=order.side,
+        price=order.price,
+        volume=order.volume,
+        client=order.client,
+        strike=strike,
+        expiry=expiry,
+        token_pair=token_pair,
+        matchedIds=matchedIds
+    )
+
+    # Fetch the token pair document or create it if it doesn't exist
+    token_pair_doc, _ = TokenPairDoc.objects.get_or_create(token_pair=token_pair)
+
+    # Add the order to the ledger
+    token_pair_doc.ledger.append(order)
+
+    # Save the document
+    token_pair_doc.save()
+

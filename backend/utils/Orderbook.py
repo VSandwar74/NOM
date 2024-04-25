@@ -335,8 +335,7 @@ class OrderBook:
                     return True
         return False
 
-
-    def placeOrder(self, order: Order):
+    def placeOrder(self, order: Order) -> dict:
         self._resetOrders()
         oppBook = self.bestAsk if order.side == 'BID' else self.bestBid
         sameBook = self.bestBid if order.side == 'BID' else self.bestAsk
@@ -423,3 +422,19 @@ class OrderBook:
 
     def getVolumeAtPrice(self, price, side):
         return self.volumeMap[price][side]
+
+    def snapshot(self):
+        """
+        Generate a snapshot of the current state of the order book, showing the best bid and ask prices and volumes.
+        """
+        best_bid = self.bestBid.getMin() if self.bestBid.exists() else None
+        best_ask = self.bestAsk.getMin() if self.bestAsk.exists() else None
+        bid_volume = self.getVolumeAtPrice(best_bid, 'BID') if best_bid else 0
+        ask_volume = self.getVolumeAtPrice(best_ask, 'ASK') if best_ask else 0
+
+        return {
+            'Best Bid': best_bid,
+            'Bid Volume': bid_volume,
+            'Best Ask': best_ask,
+            'Ask Volume': ask_volume
+        }
