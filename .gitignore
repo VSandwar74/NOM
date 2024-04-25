@@ -97,3 +97,4 @@ backend/.env
 
 #env folders
 env/
+venv/
