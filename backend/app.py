@@ -91,12 +91,20 @@ config = dotenv_values(".env")
 
 @app.on_event("startup")
 def connection_to_db():
-    #connection string
-    app.mongodb_client = MongoClient(config['ATLAS_URI'])
-    app.database = app.mongodb_client[config['DB_NAME']]
+    try:
+        #connection string
+        app.mongodb_client = MongoClient(config['ATLAS_URI'], serverSelectionTimeoutMS=5000) 
+        app.database = app.mongodb_client[config['DB_NAME']]
+
+        #test query
+        app.mongodb_client.admin.command('ping')
+        print("pinged the database")
+
+    except Exception as error:
+        print(f"Failed to connect to DB: {error}")
+
 
 @app.on_event("shutdown")
 def disconnect_from_db():
     app.mongodb_client.close()
-
 

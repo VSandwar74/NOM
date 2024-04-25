@@ -1,16 +1,15 @@
-from pymongo import MongoClient 
-import os
-from dotenv import dotenv_values
 
-config = dotenv_values(".env")
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
-@app.on_event("startup")
-def connection_to_db():
-    #connection string
-    app.mongodb_client = MongoClient(config['ATLAS_URI'])
-    db = client[config['DB_NAME']]
+uri = "mongodb+srv://ss14608:h3ll0888@nom-cluster.zq62qzt.mongodb.net/?retryWrites=true&w=majority&appName=nom-cluster"
 
-def disconnect_from_db()
+# Create a new client and connect to the server
+client = MongoClient(uri, server_api=ServerApi('1'))
 
-if __name__ == "__main__":
-    connect_to
+# Send a ping to confirm a successful connection
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
