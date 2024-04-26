@@ -13,7 +13,7 @@ app = FastAPI()
 
 
 order_book_map: 'dict[str, dict[str, dict[str, dict[str, OrderBook]]]]' = {} # ex: order_book_map[TOKEN_PAIR][EXPIRY][STRIKE][CALL/PUT]
-contract_websockets: dict[str, List[WebSocket]] = defaultdict(list)
+contract_websockets: 'dict[str, List[WebSocket]]' = defaultdict(list)
 event_map: 'dict[str, asyncio.Event]' = defaultdict(asyncio.Event)
 new_orders: 'dict[str, List[Order]]' = defaultdict(list)
 
@@ -36,15 +36,15 @@ class OrderModel(BaseModel):
 #     ask_volume: int
 
 class BookView(BaseModel):
-    callBSize: 1000
-    callBid: 10.0
-    callAsk: 10.5
-    callASize: 10.5
-    strike: 0
-    putASize: 1000
-    putAsk: 10.5
-    putBid: 10.0 
-    putBSize: 1000    
+    callBSize: int
+    callBid: float
+    callAsk: float
+    callASize: int
+    strike: int
+    putASize: int
+    putAsk: float
+    putBid: float
+    putBSize: int
 
 # CORS (Cross-Origin Resource Sharing) middleware
 app.add_middleware(
