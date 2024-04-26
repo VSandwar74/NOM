@@ -42,8 +42,34 @@ const TradingRoom = ( props ) => {
     const { roomDoc } = props;
     const {db} = firebase
     const [open, setOpen] = useState(false);
+    const [ledger, setLedger] = useState([])
     // const [bids, setBids] = useState([])
-    // const [ledger, setLedger] = useState([])
+ 
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:8000/snapshot');
+          const data = await response.json();
+          // Process the data here
+          setLedger(data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      fetchData();
+
+      // Or if you want to use getSnapshot
+      const unsubscribe = onSnapshot(collection(db, "your-collection"), (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          // Process each document here
+        });
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }, []);
 
     // useEffect(() => {
     //   const orderQuery = query(collection(db, "rooms", roomDoc.ref.id ,"orders"), where('bidOrAsk', 'in', ['bid', 'ask']), orderBy('value', 'asc'), orderBy('timestamp', 'asc'));
@@ -123,32 +149,32 @@ const TradingRoom = ( props ) => {
                 </tr>
             </thead>
             <tbody className='' >
-              {options.options && options.options.map((option, i) => {
+              {ledger && ledger.map((option, i) => {
                 const tableStyle = "border-y-[0px] border-slate-400 text-center";
                 let color = i % 2 == 0 ? 'bg-purple-50' : 'bg-white';
                 let bidColor = 'text-green-500';
                 let askColor = 'text-red-500';
                 return (
                   <tr key={i} className={`${color} h-12`}>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.callopen}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.calldelta}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.callsize}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.callivBid}</td>
-                    <td className={`${bidColor} ${tableStyle}`}>{option.callbid}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.callmark}</td>
-                    <td className={`${askColor} ${tableStyle} `}>{option.callask}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.callivAsk}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.callsize}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.callopen}</td> */}
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.calldelta}</td> */}
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callBSize}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.callivBid}</td> */}
+                    <td className={`${bidColor} ${tableStyle}`}>{option.callBid}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.callmark}</td> */}
+                    <td className={`${askColor} ${tableStyle} `}>{option.callAsk}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.callivAsk}</td> */}
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.callASize}</td>
                     <td className={`font-bold text-slate-700 text-center`}>{option.strike}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putsize}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putivAsk}</td>
-                    <td className={`${tableStyle} ${askColor}`}>{option.putask}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putmark}</td>
-                    <td className={`${tableStyle} ${bidColor}`}>{option.putbid}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putivBid}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putsize}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putdelta}</td>
-                    <td className={`text-slate-700 ${tableStyle}`}>{option.putopen}</td>
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putASize}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.putivAsk}</td> */}
+                    <td className={`${tableStyle} ${askColor}`}>{option.putAsk}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.putmark}</td> */}
+                    <td className={`${tableStyle} ${bidColor}`}>{option.putBid}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.putivBid}</td> */}
+                    <td className={`text-slate-700 ${tableStyle}`}>{option.putBSize}</td>
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.putdelta}</td> */}
+                    {/* <td className={`text-slate-700 ${tableStyle}`}>{option.putopen}</td> */}
                   </tr>
                 );
               })}
