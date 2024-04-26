@@ -2,6 +2,18 @@
 
 NOM (Nibiru Options Marketplace) is a full-stack web3 application that serves as a simple options marketplace for the Nibiru chain on the Cosmic ecosystem. It allows users to trade options contracts on the Nibiru chain efficiently.
 
+## To-Do
+- Frontend:
+    - [x] Implement user authentication and account creation functionality.
+    - [x] Design and develop the user interface for trading options contracts.
+    - [ ] Integrate with the backend WebSocket server to fetch real-time market data.
+- Backend:
+    - [x] Implement the REST API endpoints for user authentication and account creation.
+- Smart Contracts:
+    - [ ] Define the data structures and functions for options contracts.
+    - [ ] Implement the logic for creating, trading, and settling options contracts.
+    - [ ] Ensure proper validation and security measures are in place.
+
 ## Installation
 
 To run NOM locally, you need to set up the frontend, backend, and contracts components. Follow the instructions below:
