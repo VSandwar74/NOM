@@ -38,9 +38,10 @@ class Message:
         self.txct: int = txct
 
 class Order:
-    def __init__(self, orderId, time, bidOrAsk, price, volume, client) -> None:
+    def __init__(self, orderId, time, callOrPut, bidOrAsk, price, volume, client) -> None:
         self.orderId: int = orderId
         self.datetime: float = time
+        self.callOrPut: str = callOrPut
         self.side: str = bidOrAsk
         self.price: float = price
         self.volume: int = volume
@@ -426,6 +427,7 @@ class OrderBook:
     def snapshot(self):
         """
         Generate a snapshot of the current state of the order book, showing the best bid and ask prices and volumes.
+        TODO: Check if snapshot errs with blank orderbook
         """
         best_bid = self.bestBid.getMin() if self.bestBid.exists() else None
         best_ask = self.bestAsk.getMin() if self.bestAsk.exists() else None
@@ -433,8 +435,8 @@ class OrderBook:
         ask_volume = self.getVolumeAtPrice(best_ask, 'ASK') if best_ask else 0
 
         return {
-            'Best Bid': best_bid,
-            'Bid Volume': bid_volume,
-            'Best Ask': best_ask,
-            'Ask Volume': ask_volume
+            'best_id': best_bid,
+            'bid_volume': bid_volume,
+            'best_ask': best_ask,
+            'ask_volume': ask_volume
         }

@@ -12,7 +12,7 @@ from db import add_to_db, remove_from_db, change_order_volume, add_ledger_entry
 app = FastAPI()
 
 
-order_book_map: 'dict[str, dict[str, dict[str, OrderBook]]]' = {} # ex: order_book_map[TOKEN_PAIR][EXPIRY][STRIKE]
+order_book_map: 'dict[str, dict[str, dict[str, dict[str, OrderBook]]]]' = {} # ex: order_book_map[TOKEN_PAIR][EXPIRY][STRIKE][CALL/PUT]
 contract_websockets: dict[str, List[WebSocket]] = defaultdict(list)
 event_map: 'dict[str, asyncio.Event]' = defaultdict(asyncio.Event)
 new_orders: 'dict[str, List[Order]]' = defaultdict(list)
@@ -29,12 +29,22 @@ class OrderModel(BaseModel):
     volume: int
     client: str
 
-class Snapshot(BaseModel):
-    best_bid: float
-    bid_volume: int
-    best_ask: float
-    ask_volume: int
-    
+# class Snapshot(BaseModel):
+#     best_bid: float
+#     bid_volume: int
+#     best_ask: float
+#     ask_volume: int
+
+class BookView(BaseModel):
+    callBSize: 1000
+    callBid: 10.0
+    callAsk: 10.5
+    callASize: 10.5
+    strike: 0
+    putASize: 1000
+    putAsk: 10.5
+    putBid: 10.0 
+    putBSize: 1000    
 
 # CORS (Cross-Origin Resource Sharing) middleware
 app.add_middleware(
@@ -70,7 +80,7 @@ async def create_orderbook(token_pair: str) -> Message:
 # ]
 # }
 @app.post("/place-order", response_model=Message)
-async def place_order(token_pair: str, expiry: str,strike: float, order: OrderModel) -> Message:
+async def place_order(token_pair: str, expiry: str, strike: float, callOrPut: str, order: OrderModel) -> Message:
     """
     Place an order for a given token pair.
 
@@ -87,10 +97,11 @@ async def place_order(token_pair: str, expiry: str,strike: float, order: OrderMo
     try:
         # Check if the order book exists, if not create it
         if token_pair not in order_book_map or expiry not in order_book_map[token_pair] or strike not in order_book_map[token_pair][expiry]:
-            order_book_map[token_pair][expiry][strike] = OrderBook()
+            order_book_map[token_pair][expiry][strike]['call'] = OrderBook()
+            order_book_map[token_pair][expiry][strike]['put'] = OrderBook()
         # Place the order
-        order = Order(orderId=order.orderId, time=order.datetime, bidOrAsk=order.side, price=order.price, volume=order.volume, client=order.client)
-        msg = order_book_map[token_pair][expiry][strike].placeOrder(order)
+        order = Order(callOrPut=order.callOrPut, orderId=order.orderId, time=order.datetime, bidOrAsk=order.side, price=order.price, volume=order.volume, client=order.client)
+        msg = order_book_map[token_pair][expiry][strike][callOrPut].placeOrder(order)
         # if order is resting and was not matched with any other order, add it to the database
         if msg.resting and msg.matched == []:
             add_to_db(order, strike, expiry, token_pair)
@@ -107,11 +118,10 @@ async def place_order(token_pair: str, expiry: str,strike: float, order: OrderMo
                            resting=msg.resting)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error placing order: {e}")
-
-
         
-@app.get('/snapshot', response_model=Snapshot)
-def get_snapshot(token_pair: str, expiry: str, strike: float) -> Snapshot:
+@app.get('/snapshot', response_model=List[BookView])
+def get_snapshot(token_pair: str, expiry: str) -> List[BookView]:
+# def get_snapshot(token_pair: str, expiry: str, strike: float) -> List[Snapshot]:
     """
     Get the order book snapshot for a given token pair.
 
@@ -124,11 +134,20 @@ def get_snapshot(token_pair: str, expiry: str, strike: float) -> Snapshot:
         dict: A dictionary containing the order book snapshot.
     """
     try:
-        snap_dict = order_book_map[token_pair][expiry][strike].snapshot()
-        return Snapshot(best_bid=snap_dict['best_bid'], 
-                        bid_volume=snap_dict['bid_volume'], 
-                        best_ask=snap_dict['best_ask'], 
-                        ask_volume=snap_dict['ask_volume'])
+        output = []
+        for strike in order_book_map[token_pair][expiry]:
+            call_snap_dict = order_book_map[token_pair][expiry][strike]['call'].snapshot()
+            put_snap_dict = order_book_map[token_pair][expiry][strike]['put'].snapshot()
+            output.append(BookView(callBSize=call_snap_dict['bid_volume'], 
+                                    callBid=call_snap_dict['best_bid'], 
+                                    callAsk=call_snap_dict['best_ask'], 
+                                    callASize=call_snap_dict['ask_volume'], 
+                                    strike=strike, 
+                                    putASize=put_snap_dict['ask_volume'], 
+                                    putAsk=put_snap_dict['best_ask'], 
+                                    putBid=put_snap_dict['best_bid'], 
+                                    putBSize=put_snap_dict['bid_volume']))
+        return output.sort(key=lambda x: x.strike)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error getting snapshot: {e}")
 
